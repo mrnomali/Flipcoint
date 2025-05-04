@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coin Flip Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0a0020;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 32px;
+      transition: opacity 0.5s ease;
+    }
+
+    .coin-container {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 20px gold;
+      transition: transform 0.6s ease;
+      transform: scale(1);
+    }
+
+    #coin {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 2s ease-in-out;
+    }
+
+    button {
+      padding: 16px 30px;
+      font-size: 20px;
+      border: none;
+      border-radius: 14px;
+      background: gold;
+      color: black;
+      margin-top: 30px;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px #000;
+      transition: all 0.3s ease;
+    }
+
+    #result {
+      margin-top: 30px;
+      font-size: 26px;
+      text-shadow: 1px 1px 4px black;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    #closeBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 34px;
+      color: white;
+      background: red;
+      border: none;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      cursor: pointer;
+      display: none;
+      z-index: 10;
+    }
+
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .fade-in {
+      opacity: 1 !important;
+    }
+
+    .coin-container.animate {
+      transform: scale(1.1);
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      width: 100%;
+      z-index: 5;
+    }
+
+    .nav-btn {
+      background: white;
+      color: black;
+      font-size: 22px;
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px #000;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .nav-btn.active {
+      background: gold;
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">COIN FLIP</h1>
+
+  <div class="coin-container" id="coinWrap">
+    <img id="coin" src="https://i.ibb.co.com/Q7XmwZbH/d9ae1310-e7fc-40d3-9a30-7dd9f9f2f0c3.png" alt="Coin" />
+  </div>
+
+  <button id="flipBtn" onclick="flipCoin()">FLIP COIN</button>
+  <div id="result"></div>
+  <button id="closeBtn" onclick="resetGame()">X</button>
+
+  <!-- Bottom navigation -->
+  <div class="bottom-nav">
+    <div class="nav-btn active">🎮</div>
+    <div class="nav-btn" onclick="window.open('https://wa.me/6282130858301','_blank')">💬</div>
+  </div>
+
+  <!-- Audio -->
+  <audio id="flipSound" src="flip.mp3" preload="auto"></audio>
+  <audio id="bgMusic" src="bg.mp3" preload="auto" loop></audio>
+  <audio id="winSound" src="win.mp3" preload="auto"></audio>
+  <audio id="loseSound" src="lose.mp3" preload="auto"></audio>
+
+  <script>
+    const coin = document.getElementById("coin");
+    const result = document.getElementById("result");
+    const flipSound = document.getElementById("flipSound");
+    const bgMusic = document.getElementById("bgMusic");
+    const winSound = document.getElementById("winSound");
+    const loseSound = document.getElementById("loseSound");
+    const title = document.getElementById("title");
+    const flipBtn = document.getElementById("flipBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const coinWrap = document.getElementById("coinWrap");
+
+    let flipped = false;
+
+    function stopAllSounds() {
+      [bgMusic, flipSound, winSound, loseSound].forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+    }
+
+    function flipCoin() {
+      title.classList.add("hidden");
+      flipBtn.style.display = "none";
+      result.classList.remove("fade-in");
+      result.textContent = "";
+      coinWrap.classList.add("animate");
+
+      if (!flipped) {
+        bgMusic.play();
+        flipped = true;
+      }
+
+      coin.style.transform = "rotateY(0deg)";
+      setTimeout(() => coin.style.transform = "rotateY(3600deg)", 10);
+
+      flipSound.play();
+
+      setTimeout(() => {
+        const isWin = Math.random() < 0.5;
+        coin.src = isWin ? "w.png" : "l.png";
+        result.textContent = isWin ? "YOU WIN!" : "YOU LOSE!";
+        result.classList.add("fade-in");
+
+        if (isWin) {
+          winSound.play();
+        } else {
+          loseSound.play();
+        }
+
+        closeBtn.style.display = "block";
+        coinWrap.classList.remove("animate");
+      }, 2000);
+    }
+
+    function resetGame() {
+      stopAllSounds();
+      coin.src = "https://i.ibb.co.com/Q7XmwZbH/d9ae1310-e7fc-40d3-9a30-7dd9f9f2f0c3.png";
+      title.classList.remove("hidden");
+      flipBtn.style.display = "inline-block";
+      result.textContent = "";
+      result.classList.remove("fade-in");
+      closeBtn.style.display = "none";
+      coin.style.transform = "rotateY(0deg)";
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopAllSounds();
+      }
+    });
+  </script>
+</body>
+</html>
